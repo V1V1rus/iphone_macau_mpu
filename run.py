@@ -14,7 +14,13 @@ import random
 def run():
     r = requests.get(config.url, headers=config.headers)
     result = r.json()
-    stores = result['stores']
+
+    try:
+        stores = result['stores']
+    except:
+        print("预约网站已维护，10分钟后重新启动")
+        time.sleep(60 * 10)
+        run()
 
     for store_key in config.stores:
         if store_key in stores:
@@ -30,7 +36,7 @@ def run():
                     capacity = config.capacity[key]
                     url = 'https://reserve-prime.apple.com/MO/zh_MO/reserve/A?subfamily={}&color={}&capacity={}' \
                           '&quantity=1&anchor-store=R672&store={}&partNumber={}&channel=&sourceID=&iUID=' \
-                          '&iuToken=&iUP=N&appleCare=&rv=&path=&plan=unlocked'\
+                          '&iuToken=&iUP=N&appleCare=&rv=&path=&plan=unlocked' \
                         .format(subfamily, color, capacity, store_key, key)
                     message = '[ALERT] {} {}店铺有货!直达链接：{}'.format(name, store_name, url)
                     ding(message)
@@ -55,10 +61,6 @@ def ding(message):
 
 
 if __name__ == "__main__":
-    while(1):
+    while (1):
         run()
         time.sleep(random.randint(3, 9))
-
-
-
-
